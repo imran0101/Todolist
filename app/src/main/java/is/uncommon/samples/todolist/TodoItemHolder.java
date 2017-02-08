@@ -15,7 +15,6 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import java.util.Random;
-import timber.log.Timber;
 
 public class TodoItemHolder extends RecyclerView.ViewHolder {
 
@@ -176,6 +175,10 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
         float scale = width * animatedValue;
         ViewCompat.setScaleX(viewScale, scale);
         ViewCompat.setTranslationX(viewScale, scale);
+        if (viewOverlay.getVisibility() != View.VISIBLE) {
+          viewOverlay.setVisibility(View.VISIBLE);
+        }
+        ViewCompat.setAlpha(viewOverlay, animatedValue);
       }
     });
     scaleRightAnimator.setInterpolator(new FastOutSlowInInterpolator());
@@ -208,7 +211,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
         cardTodo.setScaleX(1f);
         cardTodo.setScaleY(1f);
         viewTypeEnd.setVisibility(View.VISIBLE);
-        viewOverlay.setVisibility(View.VISIBLE);
+
         ViewCompat.setScaleX(viewScale, 0f);
         callback.done(getAdapterPosition(), item);
       }
@@ -243,7 +246,6 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
       return;
     }
 
-    viewOverlay.setVisibility(View.GONE);
     final int itemWidth = cardTodo.getWidth();
 
     ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
@@ -282,6 +284,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
         float scale = width * animatedValue;
         ViewCompat.setTranslationX(viewScale, scale);
         ViewCompat.setScaleX(viewScale, scale);
+        ViewCompat.setAlpha(viewOverlay, animatedValue);
       }
     });
 
@@ -299,6 +302,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
         cardTodo.setScaleX(1f);
         cardTodo.setScaleY(1f);
         viewTypeStart.setVisibility(View.VISIBLE);
+        viewOverlay.setVisibility(View.GONE);
         callback.undo(getAdapterPosition(), item);
       }
 
@@ -328,7 +332,6 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
    */
   private void remove(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
-    Timber.d("remove: %s %s", item, adapterPosition);
 
     final ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
     elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
