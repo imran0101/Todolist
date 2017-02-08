@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
 public class TodoActivity extends AppCompatActivity {
 
@@ -20,12 +21,14 @@ public class TodoActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_todo);
 
+    Timber.plant(new Timber.DebugTree());
+
     ButterKnife.bind(this);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
     setTitle("Today");
-    final TodoTodoAdapter adapter = new TodoTodoAdapter();
+    final TodoAdapter adapter = new TodoAdapter();
 
     imgReset.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {

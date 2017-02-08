@@ -3,7 +3,7 @@ package is.uncommon.samples.todolist;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
-public class TodoTodoAdapter extends RecyclerView.Adapter<TodoItemHolder>
+public class TodoAdapter extends RecyclerView.Adapter<TodoItemHolder>
     implements ItemTouchHelperAdapter, TodoItemAdapterCallback {
 
   TodoList todoList = new TodoList(this);
@@ -13,7 +13,7 @@ public class TodoTodoAdapter extends RecyclerView.Adapter<TodoItemHolder>
       "Pay electricity bill", "Book flight tickets"
   };
 
-  public TodoTodoAdapter() {
+  public TodoAdapter() {
     todoList.addAll(todoArray);
   }
 
@@ -55,5 +55,12 @@ public class TodoTodoAdapter extends RecyclerView.Adapter<TodoItemHolder>
       return;
     }
     todoList.done(position, item);
+  }
+
+  @Override public void undo(int position, TodoItem item) {
+    if (position == RecyclerView.NO_POSITION) {
+      return;
+    }
+    todoList.undo(position, item);
   }
 }

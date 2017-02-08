@@ -20,9 +20,10 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
 
   int[] rotationAngles = new int[] { 7, 6, 5, 4, 3, -3, -4, -5, -6, -7 };
   @BindView(R.id.card_todo) CardView cardTodo;
-  @BindView(R.id.view_type) View viewType;
+  @BindView(R.id.view_type_start) View viewTypeStart;
   @BindView(R.id.view_type_end) View viewTypeEnd;
   @BindView(R.id.view_overlay) View viewOverlay;
+  @BindView(R.id.view_scale) View viewScale;
   @BindView(R.id.text_todo) TextView textTodo;
   @BindView(R.id.btn_remove) View btnRemove;
   @BindView(R.id.btn_done) View btnDone;
@@ -47,16 +48,15 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
       }
     });
 
-    if (!item.isDone()) {
-      btnDone.setOnClickListener(new View.OnClickListener() {
-        @Override public void onClick(View v) {
-          btnDone.setEnabled(false);
+    btnDone.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        if (item.isDone()) {
+          undo(item, callback, getAdapterPosition());
+        } else {
           done(item, callback, getAdapterPosition());
         }
-      });
-    } else {
-      btnDone.setEnabled(false);
-    }
+      }
+    });
   }
 
   public void onSelected() {
@@ -120,12 +120,12 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
 
   private void done(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
-    Timber.d("done: %s %s", item, adapterPosition);
     if (adapterPosition == RecyclerView.NO_POSITION) {
       return;
     }
 
     final int itemWidth = cardTodo.getWidth();
+    viewScale.setX(0);
 
     ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
     elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -144,11 +144,10 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     scaleRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float animatedValue = (float) valueAnimator.getAnimatedValue();
-        int width = itemWidth - viewType.getWidth();
+        int width = itemWidth - viewScale.getWidth();
         float scale = width * animatedValue;
-        ViewCompat.setScaleX(viewType, scale);
-        ViewCompat.setTranslationX(viewType, scale);
-        Timber.d("onAnimationUpdate: %s %s", cardTodo.getWidth(), scale);
+        ViewCompat.setScaleX(viewScale, scale);
+        ViewCompat.setTranslationX(viewScale, scale);
       }
     });
     scaleRightAnimator.setInterpolator(new FastOutSlowInInterpolator());
@@ -161,10 +160,9 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     scaleLeftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float animatedValue = (float) valueAnimator.getAnimatedValue();
-        int width = itemWidth - viewType.getWidth();
+        int width = itemWidth - viewScale.getWidth();
         float scale = width * animatedValue;
-        ViewCompat.setScaleX(viewType, scale);
-        Timber.d("onAnimationUpdate: %s %s", cardTodo.getWidth(), scale);
+        ViewCompat.setScaleX(viewScale, scale);
       }
     });
 
@@ -175,15 +173,15 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
 
     scaleLeftAnimator.addListener(new Animator.AnimatorListener() {
       @Override public void onAnimationStart(Animator animation) {
-
+        viewTypeStart.setVisibility(View.INVISIBLE);
       }
 
       @Override public void onAnimationEnd(Animator animation) {
         cardTodo.setScaleX(1f);
         cardTodo.setScaleY(1f);
         viewTypeEnd.setVisibility(View.VISIBLE);
-        viewType.setVisibility(View.INVISIBLE);
         viewOverlay.setVisibility(View.VISIBLE);
+        ViewCompat.setScaleX(viewScale, 0f);
         callback.done(getAdapterPosition(), item);
       }
 
@@ -199,6 +197,88 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     AnimatorSet animatorSet = new AnimatorSet();
     AnimatorSet te = new AnimatorSet();
     te.playTogether(scaleRightAnimator, scaleLeftAnimator);
+    te.setStartDelay(100L);
+    animatorSet.playTogether(elevateAnimator, te);
+    animatorSet.start();
+  }
+
+  private void undo(final TodoItem item, final TodoItemAdapterCallback callback,
+      final int adapterPosition) {
+    if (adapterPosition == RecyclerView.NO_POSITION) {
+      return;
+    }
+
+    viewOverlay.setVisibility(View.GONE);
+    final int itemWidth = cardTodo.getWidth();
+
+    ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
+    elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
+        float animatedValue = (float) animation.getAnimatedValue();
+        ViewCompat.setScaleX(cardTodo, animatedValue);
+        ViewCompat.setScaleY(cardTodo, animatedValue);
+      }
+    });
+
+    elevateAnimator.setInterpolator(new FastOutSlowInInterpolator());
+    elevateAnimator.setStartDelay(0L);
+    elevateAnimator.setDuration(300L);
+
+    ValueAnimator scaleLeftAnimator = ValueAnimator.ofFloat(0f, 1f);
+    scaleLeftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
+        float animatedValue = (float) valueAnimator.getAnimatedValue();
+        int width = itemWidth - viewScale.getWidth();
+        float scale = width * animatedValue;
+        ViewCompat.setScaleX(viewScale, scale);
+      }
+    });
+    scaleLeftAnimator.setInterpolator(new FastOutSlowInInterpolator());
+
+    scaleLeftAnimator.setStartDelay(0L);
+    scaleLeftAnimator.setDuration(300L);
+
+    ValueAnimator scaleRightAnimator = ValueAnimator.ofFloat(1f, 0f);
+
+    scaleRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
+        float animatedValue = (float) valueAnimator.getAnimatedValue();
+        int width = itemWidth - viewScale.getWidth();
+        float scale = width * animatedValue;
+        ViewCompat.setTranslationX(viewScale, scale);
+        ViewCompat.setScaleX(viewScale, scale);
+      }
+    });
+
+    scaleRightAnimator.setInterpolator(new FastOutSlowInInterpolator());
+    scaleRightAnimator.setStartDelay(0L);
+    scaleRightAnimator.setDuration(300L);
+    scaleRightAnimator.setStartDelay(200L);
+
+    scaleRightAnimator.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animation) {
+        viewTypeEnd.setVisibility(View.INVISIBLE);
+      }
+
+      @Override public void onAnimationEnd(Animator animation) {
+        cardTodo.setScaleX(1f);
+        cardTodo.setScaleY(1f);
+        viewTypeStart.setVisibility(View.VISIBLE);
+        callback.undo(getAdapterPosition(), item);
+      }
+
+      @Override public void onAnimationCancel(Animator animation) {
+
+      }
+
+      @Override public void onAnimationRepeat(Animator animation) {
+
+      }
+    });
+
+    AnimatorSet animatorSet = new AnimatorSet();
+    AnimatorSet te = new AnimatorSet();
+    te.playTogether(scaleLeftAnimator, scaleRightAnimator);
     te.setStartDelay(100L);
     animatorSet.playTogether(elevateAnimator, te);
     animatorSet.start();

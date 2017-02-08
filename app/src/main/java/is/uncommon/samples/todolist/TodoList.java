@@ -38,6 +38,11 @@ public class TodoList {
     move(position, todoList.size() - 1);
   }
 
+  public void undo(int position, TodoItem item) {
+    item.isDone(false);
+    move(position, 0);
+  }
+
   public void move(int fromPosition, int toPosition) {
     Collections.swap(todoList, fromPosition, toPosition);
     adapter.notifyItemMoved(fromPosition, toPosition);

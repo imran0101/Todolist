@@ -4,4 +4,6 @@ public interface TodoItemAdapterCallback {
   void remove(int position, TodoItem item);
 
   void done(int position, TodoItem item);
+
+  void undo(int position, TodoItem item);
 }

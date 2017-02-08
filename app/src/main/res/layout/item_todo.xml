@@ -69,7 +69,7 @@
 
 
     <View
-        android:id="@+id/view_type"
+        android:id="@+id/view_type_start"
         android:layout_width="6dp"
         android:layout_height="match_parent"
         android:background="#ff44ff"
@@ -90,6 +90,13 @@
         android:layout_height="match_parent"
         android:background="#ccffffff"
         android:visibility="invisible"
+        />
+
+    <View
+        android:id="@+id/view_scale"
+        android:layout_width="6dp"
+        android:layout_height="match_parent"
+        android:background="#ff44ff"
         />
 
   </FrameLayout>
