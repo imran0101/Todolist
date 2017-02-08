@@ -3,6 +3,7 @@ package is.uncommon.samples.todolist;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
+import android.graphics.Color;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.widget.CardView;
@@ -19,6 +20,11 @@ import timber.log.Timber;
 public class TodoItemHolder extends RecyclerView.ViewHolder {
 
   int[] rotationAngles = new int[] { 7, 6, 5, 4, 3, -3, -4, -5, -6, -7 };
+  int[] itemTypeColors = new int[] {
+      Color.argb(255, 244, 143, 177), Color.argb(255, 179, 157, 219),
+      Color.argb(255, 129, 212, 250), Color.argb(255, 128, 203, 196),
+      Color.argb(255, 174, 213, 129), Color.argb(255, 255, 183, 77)
+  };
   @BindView(R.id.card_todo) CardView cardTodo;
   @BindView(R.id.view_type_start) View viewTypeStart;
   @BindView(R.id.view_type_end) View viewTypeEnd;
@@ -40,7 +46,9 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
   }
 
   public void bind(final TodoItem item, final TodoItemAdapterCallback callback) {
+    setTypeColor();
     textTodo.setText(item.task());
+
     btnRemove.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         remove(item, callback, getAdapterPosition());
@@ -58,11 +66,19 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     });
   }
 
+  private void setTypeColor() {
+    int index = new Random().nextInt(itemTypeColors.length);
+
+    viewScale.setBackgroundColor(itemTypeColors[index]);
+    viewTypeStart.setBackgroundColor(itemTypeColors[index]);
+    viewTypeEnd.setBackgroundColor(itemTypeColors[index]);
+  }
+
   /**
    * On Item selected rotate and animate itemview from 0 to a random angle.
    */
   public void onSelected() {
-    int i = new Random().nextInt(rotationAngles.length);
+    int index = new Random().nextInt(rotationAngles.length);
 
     ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
     elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -76,7 +92,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     elevateAnimator.setInterpolator(new FastOutSlowInInterpolator());
     elevateAnimator.setDuration(200);
 
-    ValueAnimator rotateAnimator = ValueAnimator.ofFloat(0, rotationAngles[i]);
+    ValueAnimator rotateAnimator = ValueAnimator.ofFloat(0, rotationAngles[index]);
     rotateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float animatedValue = (float) valueAnimator.getAnimatedValue();

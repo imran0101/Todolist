@@ -38,11 +38,6 @@ public class TodoAdapter extends RecyclerView.Adapter<TodoItemHolder>
 
   }
 
-  public void reset() {
-    todoList.items().clear();
-    todoList.addAll(todoArray);
-  }
-
   @Override public void remove(int position, TodoItem item) {
     if (item == null) {
       return;

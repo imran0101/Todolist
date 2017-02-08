@@ -48,10 +48,6 @@ public class TodoList {
     adapter.notifyItemMoved(fromPosition, toPosition);
   }
 
-  public List<TodoItem> items() {
-    return todoList;
-  }
-
   public int size() {
     return todoList.size();
   }

@@ -21,22 +21,6 @@
         app:popupTheme="@style/AppTheme.PopupOverlay"
         >
 
-      <LinearLayout
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:gravity="end"
-          android:orientation="horizontal"
-          >
-
-        <ImageView
-            android:id="@+id/img_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@android:drawable/btn_star"
-            />
-
-      </LinearLayout>
-
     </android.support.v7.widget.Toolbar>
 
   </android.support.design.widget.AppBarLayout>
