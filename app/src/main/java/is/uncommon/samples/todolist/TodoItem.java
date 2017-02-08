@@ -1,5 +1,8 @@
 package is.uncommon.samples.todolist;
 
+/**
+ * Model ttodo Item.
+ */
 public class TodoItem {
 
   private int index;

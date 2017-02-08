@@ -223,10 +223,10 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     });
 
     AnimatorSet animatorSet = new AnimatorSet();
-    AnimatorSet te = new AnimatorSet();
-    te.playTogether(scaleRightAnimator, scaleLeftAnimator);
-    te.setStartDelay(100L);
-    animatorSet.playTogether(elevateAnimator, te);
+    AnimatorSet scaleAnimatorSet = new AnimatorSet();
+    scaleAnimatorSet.playTogether(scaleRightAnimator, scaleLeftAnimator);
+    scaleAnimatorSet.setStartDelay(100L);
+    animatorSet.playTogether(elevateAnimator, scaleAnimatorSet);
     animatorSet.start();
   }
 
@@ -312,10 +312,10 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     });
 
     AnimatorSet animatorSet = new AnimatorSet();
-    AnimatorSet te = new AnimatorSet();
-    te.playTogether(scaleLeftAnimator, scaleRightAnimator);
-    te.setStartDelay(100L);
-    animatorSet.playTogether(elevateAnimator, te);
+    AnimatorSet scaleAnimatorSet = new AnimatorSet();
+    scaleAnimatorSet.playTogether(scaleLeftAnimator, scaleRightAnimator);
+    scaleAnimatorSet.setStartDelay(100L);
+    animatorSet.playTogether(elevateAnimator, scaleAnimatorSet);
     animatorSet.start();
   }
 

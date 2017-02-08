@@ -2,8 +2,10 @@ package is.uncommon.samples.todolist;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import timber.log.Timber;
 
+/**
+ * Notify adapter on item selection for drag.
+ */
 public class TodoItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 
   ItemTouchHelperAdapter itemTouchHelperAdapter;
@@ -41,7 +43,6 @@ public class TodoItemTouchCallback extends ItemTouchHelper.SimpleCallback {
 
   @Override public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
     super.onSelectedChanged(viewHolder, actionState);
-    Timber.d("onSelectedChanged: %s %s", viewHolder, actionState);
     if (viewHolder == null) {
       return;
     }
