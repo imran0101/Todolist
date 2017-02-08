@@ -25,7 +25,7 @@ public class TodoActivity extends AppCompatActivity {
     setSupportActionBar(toolbar);
 
     setTitle("Today");
-    final TodoAdapter adapter = new TodoAdapter();
+    final TodoTodoAdapter adapter = new TodoTodoAdapter();
 
     imgReset.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {

@@ -1,29 +1,18 @@
 package is.uncommon.samples.todolist;
 
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.util.SortedListAdapterCallback;
-import timber.log.Timber;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class TodoList extends SortedListAdapterCallback<TodoItem> {
+public class TodoList {
 
-  SortedList<TodoItem> todoList;
+  final RecyclerView.Adapter adapter;
+  List<TodoItem> todoList;
 
   public TodoList(RecyclerView.Adapter adapter) {
-    super(adapter);
-    todoList = new SortedList<TodoItem>(TodoItem.class, this);
-  }
-
-  @Override public int compare(TodoItem o1, TodoItem o2) {
-    return o1.compare(o2);
-  }
-
-  @Override public boolean areContentsTheSame(TodoItem oldItem, TodoItem newItem) {
-    return oldItem.areContentsTheSame(newItem);
-  }
-
-  @Override public boolean areItemsTheSame(TodoItem item1, TodoItem item2) {
-    return item1.areItemsTheSame(item2);
+    this.adapter = adapter;
+    todoList = new ArrayList<>();
   }
 
   public void addAll(String[] tasks) {
@@ -34,15 +23,27 @@ public class TodoList extends SortedListAdapterCallback<TodoItem> {
   }
 
   public void add(TodoItem item) {
-    Timber.d("add: %s", item);
     todoList.add(item);
+    adapter.notifyItemInserted(todoList.size() - 1);
   }
 
-  public void remove(TodoItem item) {
+  public void remove(int position, TodoItem item) {
+    item.isRemoved(true);
     todoList.remove(item);
+    adapter.notifyItemRemoved(position);
   }
 
-  public SortedList<TodoItem> items() {
+  public void done(int position, TodoItem item) {
+    item.isDone(true);
+    move(position, todoList.size() - 1);
+  }
+
+  public void move(int fromPosition, int toPosition) {
+    Collections.swap(todoList, fromPosition, toPosition);
+    adapter.notifyItemMoved(fromPosition, toPosition);
+  }
+
+  public List<TodoItem> items() {
     return todoList;
   }
 

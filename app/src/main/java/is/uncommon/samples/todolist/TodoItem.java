@@ -50,32 +50,6 @@ public class TodoItem {
     this.isRemoved = isRemoved;
   }
 
-  public int compare(TodoItem item) {
-
-    if (!isRemoved()) {
-      if (isDone() && item.isDone()) {
-        return -1;
-      } else if (isDone() != item.isDone()) {
-        return isDone() ? 1 : -1;
-      }
-    }
-
-    if (index() < item.index()) {
-      return -1;
-    } else if (index() > item.index()) {
-      return 1;
-    }
-    return 0;
-  }
-
-  public boolean areContentsTheSame(TodoItem item) {
-    return equals(item);
-  }
-
-  public boolean areItemsTheSame(TodoItem item) {
-    return index() == item.index();
-  }
-
   @Override public boolean equals(Object obj) {
     if (!(obj instanceof TodoItem)) {
       return false;

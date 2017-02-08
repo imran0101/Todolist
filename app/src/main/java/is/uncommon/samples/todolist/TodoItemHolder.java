@@ -38,7 +38,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     return new TodoItemHolder(view);
   }
 
-  public void bind(final TodoItem item, final AdapterItemCallback callback) {
+  public void bind(final TodoItem item, final TodoItemAdapterCallback callback) {
     Timber.d("bind: %s", item);
     textTodo.setText(item.task());
     btnRemove.setOnClickListener(new View.OnClickListener() {
@@ -118,7 +118,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     animatorSet.start();
   }
 
-  private void done(final TodoItem item, final AdapterItemCallback callback,
+  private void done(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
     Timber.d("done: %s %s", item, adapterPosition);
     if (adapterPosition == RecyclerView.NO_POSITION) {
@@ -184,7 +184,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
         viewTypeEnd.setVisibility(View.VISIBLE);
         viewType.setVisibility(View.INVISIBLE);
         viewOverlay.setVisibility(View.VISIBLE);
-        callback.done(getAdapterPosition());
+        callback.done(getAdapterPosition(), item);
       }
 
       @Override public void onAnimationCancel(Animator animation) {
@@ -204,7 +204,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     animatorSet.start();
   }
 
-  private void remove(final TodoItem item, final AdapterItemCallback callback,
+  private void remove(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
     Timber.d("remove: %s %s", item, adapterPosition);
 
@@ -235,7 +235,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
       @Override public void onAnimationEnd(Animator animation) {
         cardTodo.setScaleX(1f);
         cardTodo.setScaleY(1f);
-        callback.remove(item);
+        callback.remove(adapterPosition, item);
       }
 
       @Override public void onAnimationCancel(Animator animation) {
