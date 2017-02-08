@@ -40,7 +40,6 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
   }
 
   public void bind(final TodoItem item, final TodoItemAdapterCallback callback) {
-    Timber.d("bind: %s", item);
     textTodo.setText(item.task());
     btnRemove.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
@@ -59,6 +58,9 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     });
   }
 
+  /**
+   * On Item selected rotate and animate itemview from 0 to a random angle.
+   */
   public void onSelected() {
     int i = new Random().nextInt(rotationAngles.length);
 
@@ -89,6 +91,9 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     animatorSet.start();
   }
 
+  /**
+   * On Item unselected rotate and animate itemview from current angle to 0.
+   */
   public void onUnselected() {
 
     ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1.03f, 1f);
@@ -118,6 +123,13 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     animatorSet.start();
   }
 
+  /**
+   * On Done. Animate the view and push it to the bottom of the list.
+   *
+   * @param item {@link TodoItem} item done.
+   * @param callback {@link TodoItemAdapterCallback} callback.
+   * @param adapterPosition position in adapter.
+   */
   private void done(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
     if (adapterPosition == RecyclerView.NO_POSITION) {
@@ -202,6 +214,13 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     animatorSet.start();
   }
 
+  /**
+   * On Undo item. Animate itemview and push it to top of the list.
+   *
+   * @param item {@link TodoItem} item undo.
+   * @param callback {@link TodoItemAdapterCallback} callback.
+   * @param adapterPosition position in adapter.
+   */
   private void undo(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
     if (adapterPosition == RecyclerView.NO_POSITION) {
@@ -284,6 +303,13 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     animatorSet.start();
   }
 
+  /**
+   * Remove item from the list.
+   *
+   * @param item {@link TodoItem} item to be removed.
+   * @param callback {@link TodoItemAdapterCallback} callback.
+   * @param adapterPosition position in adapter.
+   */
   private void remove(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
     Timber.d("remove: %s %s", item, adapterPosition);
