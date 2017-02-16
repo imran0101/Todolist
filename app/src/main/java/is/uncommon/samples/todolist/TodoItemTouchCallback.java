@@ -15,6 +15,10 @@ public class TodoItemTouchCallback extends ItemTouchHelper.SimpleCallback {
     this.itemTouchHelperAdapter = itemTouchHelperAdapter;
   }
 
+  public void adapter(ItemTouchHelperAdapter adapter) {
+    this.itemTouchHelperAdapter = adapter;
+  }
+
   @Override public boolean isLongPressDragEnabled() {
     return true;
   }

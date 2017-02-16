@@ -16,6 +16,8 @@ import timber.log.Timber;
 public class TodoActivity extends AppCompatActivity {
 
   TodoAdapter adapter;
+  TodoItemTouchCallback todoItemTouchCallback;
+
   @BindView(R.id.recycler_todo) RecyclerView recyclerTodo;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +36,6 @@ public class TodoActivity extends AppCompatActivity {
     toolbar.setTitleTextColor(Color.BLACK);
     toolbar.setBackgroundColor(Color.WHITE);
 
-    LinearLayoutManager manager =
-        new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-    recyclerTodo.setLayoutManager(manager);
-    adapter = new TodoAdapter();
     setupRecyclerView();
   }
 
@@ -50,18 +48,34 @@ public class TodoActivity extends AppCompatActivity {
 
     if (item.getItemId() == R.id.menu_refresh) {
       //reset adapter.
-      adapter = new TodoAdapter();
+      resetRecyclerView();
       return true;
     }
     return super.onOptionsItemSelected(item);
   }
 
+  /**
+   * Setup recyclerView.
+   */
   private void setupRecyclerView() {
+    LinearLayoutManager manager =
+        new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+    recyclerTodo.setLayoutManager(manager);
+    adapter = new TodoAdapter();
+    todoItemTouchCallback = new TodoItemTouchCallback(adapter);
     recyclerTodo.setAdapter(adapter);
 
-    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TodoItemTouchCallback(adapter));
-
+    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(todoItemTouchCallback);
     itemTouchHelper.attachToRecyclerView(recyclerTodo);
     recyclerTodo.setItemAnimator(new TodoItemAnimator());
+  }
+
+  /**
+   * Reset recyclerView.
+   */
+  private void resetRecyclerView() {
+    adapter = new TodoAdapter();
+    todoItemTouchCallback.adapter(adapter);
+    recyclerTodo.setAdapter(adapter);
   }
 }
