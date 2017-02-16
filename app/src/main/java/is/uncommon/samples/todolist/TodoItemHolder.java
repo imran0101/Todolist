@@ -172,6 +172,36 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     elevateAnimator.setStartDelay(0L);
     elevateAnimator.setDuration(300L);
 
+    ValueAnimator fadeIn = ValueAnimator.ofFloat(0f, 1f);
+    fadeIn.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
+        float animatedValue = (float) animation.getAnimatedValue();
+        ViewCompat.setAlpha(viewOverlay, animatedValue);
+      }
+    });
+
+    fadeIn.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animation) {
+        viewOverlay.setVisibility(View.VISIBLE);
+      }
+
+      @Override public void onAnimationEnd(Animator animation) {
+        viewOverlay.setVisibility(View.VISIBLE);
+      }
+
+      @Override public void onAnimationCancel(Animator animation) {
+
+      }
+
+      @Override public void onAnimationRepeat(Animator animation) {
+
+      }
+    });
+
+    fadeIn.setInterpolator(new FastOutSlowInInterpolator());
+    fadeIn.setStartDelay(0L);
+    fadeIn.setDuration(800L);
+
     ValueAnimator translateAnimator = ValueAnimator.ofFloat(-1f, 1f);
     translateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -208,7 +238,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     translateAnimator.setStartDelay(50L);
 
     AnimatorSet animatorSet = new AnimatorSet();
-    animatorSet.playTogether(elevateAnimator, translateAnimator);
+    animatorSet.playTogether(elevateAnimator, fadeIn, translateAnimator);
     animatorSet.addListener(new Animator.AnimatorListener() {
       @Override public void onAnimationStart(Animator animator) {
         isAnimating = true;
@@ -261,6 +291,36 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     elevateAnimator.setStartDelay(0L);
     elevateAnimator.setDuration(300L);
 
+    ValueAnimator fadeOut = ValueAnimator.ofFloat(1f, 0f);
+    fadeOut.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
+        float animatedValue = (float) animation.getAnimatedValue();
+        ViewCompat.setAlpha(viewOverlay, animatedValue);
+      }
+    });
+
+    fadeOut.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animation) {
+
+      }
+
+      @Override public void onAnimationEnd(Animator animation) {
+        viewOverlay.setVisibility(View.GONE);
+      }
+
+      @Override public void onAnimationCancel(Animator animation) {
+
+      }
+
+      @Override public void onAnimationRepeat(Animator animation) {
+
+      }
+    });
+
+    fadeOut.setInterpolator(new FastOutSlowInInterpolator());
+    fadeOut.setStartDelay(0L);
+    fadeOut.setDuration(800L);
+
     ValueAnimator translateAnimator = ValueAnimator.ofFloat(1f, -1f);
     translateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
@@ -296,7 +356,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     translateAnimator.setStartDelay(50L);
 
     AnimatorSet animatorSet = new AnimatorSet();
-    animatorSet.playTogether(elevateAnimator, translateAnimator);
+    animatorSet.playTogether(elevateAnimator, fadeOut, translateAnimator);
     animatorSet.addListener(new Animator.AnimatorListener() {
       @Override public void onAnimationStart(Animator animator) {
         isAnimating = true;
