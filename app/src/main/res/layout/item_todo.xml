@@ -93,10 +93,11 @@
         />
 
     <View
-        android:id="@+id/view_scale"
-        android:layout_width="6dp"
+        android:id="@+id/view_overlay_translate"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ff44ff"
+        android:visibility="invisible"
         />
 
   </FrameLayout>

@@ -28,10 +28,12 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
   @BindView(R.id.view_type_start) View viewTypeStart;
   @BindView(R.id.view_type_end) View viewTypeEnd;
   @BindView(R.id.view_overlay) View viewOverlay;
-  @BindView(R.id.view_scale) View viewScale;
+  @BindView(R.id.view_overlay_translate) View viewOverLayTranslate;
   @BindView(R.id.text_todo) TextView textTodo;
   @BindView(R.id.btn_remove) View btnRemove;
   @BindView(R.id.btn_done) View btnDone;
+
+  private boolean isAnimating = false;
 
   public TodoItemHolder(View itemView) {
     super(itemView);
@@ -68,7 +70,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
   private void setTypeColor() {
     int index = new Random().nextInt(itemTypeColors.length);
 
-    viewScale.setBackgroundColor(itemTypeColors[index]);
+    viewOverLayTranslate.setBackgroundColor(itemTypeColors[index]);
     viewTypeStart.setBackgroundColor(itemTypeColors[index]);
     viewTypeEnd.setBackgroundColor(itemTypeColors[index]);
   }
@@ -151,8 +153,11 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
       return;
     }
 
-    final int itemWidth = cardTodo.getWidth();
-    viewScale.setX(0);
+    if (isAnimating) {
+      return;
+    }
+
+    final int itemWidth = itemView.getWidth() - viewTypeStart.getWidth();
 
     ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
     elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -167,69 +172,60 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     elevateAnimator.setStartDelay(0L);
     elevateAnimator.setDuration(300L);
 
-    ValueAnimator scaleRightAnimator = ValueAnimator.ofFloat(0, 1f);
-    scaleRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+    ValueAnimator translateAnimator = ValueAnimator.ofFloat(-1f, 1f);
+    translateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float animatedValue = (float) valueAnimator.getAnimatedValue();
-        int width = itemWidth - viewScale.getWidth();
-        float scale = width * animatedValue;
-        ViewCompat.setScaleX(viewScale, scale);
-        ViewCompat.setTranslationX(viewScale, scale);
-        if (viewOverlay.getVisibility() != View.VISIBLE) {
-          viewOverlay.setVisibility(View.VISIBLE);
-        }
-        ViewCompat.setAlpha(viewOverlay, animatedValue);
-      }
-    });
-    scaleRightAnimator.setInterpolator(new FastOutSlowInInterpolator());
-
-    scaleRightAnimator.setStartDelay(0L);
-    scaleRightAnimator.setDuration(300L);
-
-    ValueAnimator scaleLeftAnimator = ValueAnimator.ofFloat(1f, 0);
-
-    scaleLeftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
-        float animatedValue = (float) valueAnimator.getAnimatedValue();
-        int width = itemWidth - viewScale.getWidth();
-        float scale = width * animatedValue;
-        ViewCompat.setScaleX(viewScale, scale);
+        ViewCompat.setTranslationX(viewOverLayTranslate, animatedValue * itemWidth);
       }
     });
 
-    scaleLeftAnimator.setInterpolator(new FastOutSlowInInterpolator());
-    scaleLeftAnimator.setStartDelay(0L);
-    scaleLeftAnimator.setDuration(300L);
-    scaleLeftAnimator.setStartDelay(200L);
-
-    scaleLeftAnimator.addListener(new Animator.AnimatorListener() {
-      @Override public void onAnimationStart(Animator animation) {
+    translateAnimator.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animator) {
+        ViewCompat.setTranslationX(viewOverLayTranslate, 0);
+        viewOverLayTranslate.setVisibility(View.VISIBLE);
         viewTypeStart.setVisibility(View.INVISIBLE);
       }
 
-      @Override public void onAnimationEnd(Animator animation) {
+      @Override public void onAnimationEnd(Animator animator) {
         cardTodo.setScaleX(1f);
         cardTodo.setScaleY(1f);
         viewTypeEnd.setVisibility(View.VISIBLE);
-
-        ViewCompat.setScaleX(viewScale, 0f);
+        viewOverlay.setVisibility(View.VISIBLE);
+        viewOverLayTranslate.setVisibility(View.INVISIBLE);
         callback.done(getAdapterPosition(), item);
       }
 
-      @Override public void onAnimationCancel(Animator animation) {
+      @Override public void onAnimationCancel(Animator animator) {
 
       }
 
-      @Override public void onAnimationRepeat(Animator animation) {
+      @Override public void onAnimationRepeat(Animator animator) {
 
       }
     });
+    translateAnimator.setDuration(800L);
+    translateAnimator.setStartDelay(50L);
 
     AnimatorSet animatorSet = new AnimatorSet();
-    AnimatorSet scaleAnimatorSet = new AnimatorSet();
-    scaleAnimatorSet.playTogether(scaleRightAnimator, scaleLeftAnimator);
-    scaleAnimatorSet.setStartDelay(100L);
-    animatorSet.playTogether(elevateAnimator, scaleAnimatorSet);
+    animatorSet.playTogether(elevateAnimator, translateAnimator);
+    animatorSet.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animator) {
+        isAnimating = true;
+      }
+
+      @Override public void onAnimationEnd(Animator animator) {
+        isAnimating = false;
+      }
+
+      @Override public void onAnimationCancel(Animator animator) {
+
+      }
+
+      @Override public void onAnimationRepeat(Animator animator) {
+
+      }
+    });
     animatorSet.start();
   }
 
@@ -243,6 +239,10 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
   private void undo(final TodoItem item, final TodoItemAdapterCallback callback,
       final int adapterPosition) {
     if (adapterPosition == RecyclerView.NO_POSITION) {
+      return;
+    }
+
+    if (isAnimating) {
       return;
     }
 
@@ -261,65 +261,59 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
     elevateAnimator.setStartDelay(0L);
     elevateAnimator.setDuration(300L);
 
-    ValueAnimator scaleLeftAnimator = ValueAnimator.ofFloat(0f, 1f);
-    scaleLeftAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+    ValueAnimator translateAnimator = ValueAnimator.ofFloat(1f, -1f);
+    translateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
         float animatedValue = (float) valueAnimator.getAnimatedValue();
-        int width = itemWidth - viewScale.getWidth();
-        float scale = width * animatedValue;
-        ViewCompat.setScaleX(viewScale, scale);
-      }
-    });
-    scaleLeftAnimator.setInterpolator(new FastOutSlowInInterpolator());
-
-    scaleLeftAnimator.setStartDelay(0L);
-    scaleLeftAnimator.setDuration(300L);
-
-    ValueAnimator scaleRightAnimator = ValueAnimator.ofFloat(1f, 0f);
-
-    scaleRightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-      @Override public void onAnimationUpdate(ValueAnimator valueAnimator) {
-        float animatedValue = (float) valueAnimator.getAnimatedValue();
-        int width = itemWidth - viewScale.getWidth();
-        float scale = width * animatedValue;
-        ViewCompat.setTranslationX(viewScale, scale);
-        ViewCompat.setScaleX(viewScale, scale);
-        ViewCompat.setAlpha(viewOverlay, animatedValue);
+        ViewCompat.setTranslationX(viewOverLayTranslate, animatedValue * itemWidth);
       }
     });
 
-    scaleRightAnimator.setInterpolator(new FastOutSlowInInterpolator());
-    scaleRightAnimator.setStartDelay(0L);
-    scaleRightAnimator.setDuration(300L);
-    scaleRightAnimator.setStartDelay(200L);
-
-    scaleRightAnimator.addListener(new Animator.AnimatorListener() {
-      @Override public void onAnimationStart(Animator animation) {
+    translateAnimator.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animator) {
+        viewOverLayTranslate.setVisibility(View.VISIBLE);
         viewTypeEnd.setVisibility(View.INVISIBLE);
       }
 
-      @Override public void onAnimationEnd(Animator animation) {
+      @Override public void onAnimationEnd(Animator animator) {
         cardTodo.setScaleX(1f);
         cardTodo.setScaleY(1f);
         viewTypeStart.setVisibility(View.VISIBLE);
         viewOverlay.setVisibility(View.GONE);
+        viewOverLayTranslate.setVisibility(View.INVISIBLE);
         callback.undo(getAdapterPosition(), item);
       }
 
-      @Override public void onAnimationCancel(Animator animation) {
+      @Override public void onAnimationCancel(Animator animator) {
 
       }
 
-      @Override public void onAnimationRepeat(Animator animation) {
+      @Override public void onAnimationRepeat(Animator animator) {
 
       }
     });
+    translateAnimator.setDuration(800L);
+    translateAnimator.setStartDelay(50L);
 
     AnimatorSet animatorSet = new AnimatorSet();
-    AnimatorSet scaleAnimatorSet = new AnimatorSet();
-    scaleAnimatorSet.playTogether(scaleLeftAnimator, scaleRightAnimator);
-    scaleAnimatorSet.setStartDelay(100L);
-    animatorSet.playTogether(elevateAnimator, scaleAnimatorSet);
+    animatorSet.playTogether(elevateAnimator, translateAnimator);
+    animatorSet.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animator) {
+        isAnimating = true;
+      }
+
+      @Override public void onAnimationEnd(Animator animator) {
+        isAnimating = false;
+      }
+
+      @Override public void onAnimationCancel(Animator animator) {
+
+      }
+
+      @Override public void onAnimationRepeat(Animator animator) {
+
+      }
+    });
     animatorSet.start();
   }
 
