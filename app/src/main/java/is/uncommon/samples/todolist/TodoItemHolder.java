@@ -159,7 +159,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
 
     final int itemWidth = itemView.getWidth() - viewTypeStart.getWidth();
 
-    ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
+    final ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
     elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator animation) {
         float animatedValue = (float) animation.getAnimatedValue();
@@ -218,8 +218,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
       }
 
       @Override public void onAnimationEnd(Animator animator) {
-        cardTodo.setScaleX(1f);
-        cardTodo.setScaleY(1f);
+        elevateAnimator.reverse();
         viewTypeEnd.setVisibility(View.VISIBLE);
         viewOverlay.setVisibility(View.VISIBLE);
         viewOverLayTranslate.setVisibility(View.INVISIBLE);
@@ -278,7 +277,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
 
     final int itemWidth = cardTodo.getWidth();
 
-    ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
+    final ValueAnimator elevateAnimator = ValueAnimator.ofFloat(1f, 1.03f);
     elevateAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
       @Override public void onAnimationUpdate(ValueAnimator animation) {
         float animatedValue = (float) animation.getAnimatedValue();
@@ -336,8 +335,7 @@ public class TodoItemHolder extends RecyclerView.ViewHolder {
       }
 
       @Override public void onAnimationEnd(Animator animator) {
-        cardTodo.setScaleX(1f);
-        cardTodo.setScaleY(1f);
+        elevateAnimator.reverse();
         viewTypeStart.setVisibility(View.VISIBLE);
         viewOverlay.setVisibility(View.GONE);
         viewOverLayTranslate.setVisibility(View.INVISIBLE);
